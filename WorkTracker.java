@@ -46,10 +46,12 @@ public class WorkTracker {
 
     private static void checkPreviousSession() {
         String today = LocalDateTime.now().format(DATE_FORMAT);
-        String filenamePattern = String.format("work_log_%s_*.csv", today);
         File dir = new File(WORK_LOGS_DIR);
         if (dir.exists() && dir.isDirectory()) {
-            File[] matchingFiles = dir.listFiles((d, name) -> name.matches(filenamePattern));
+            File[] matchingFiles = dir.listFiles((d, name) -> name.startsWith("work_log_" + today));
+            /*
+            System.out.println("Matching files length: " + matchingFiles.length); // Debug statement
+            */
             if (matchingFiles != null && matchingFiles.length > 0) {
                 int response = JOptionPane.showConfirmDialog(null,
                         "A log file for today exists. Do you want to continue the previous session?",
@@ -59,6 +61,8 @@ public class WorkTracker {
                     importPreviousSession(matchingFiles[0]);
                 }
             }
+        } else {
+            System.out.println("Directory does not exist or is not a directory: " + WORK_LOGS_DIR); // Debug statement
         }
     }
 
