@@ -7,6 +7,7 @@ import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -49,10 +50,8 @@ public class WorkTracker {
         File dir = new File(WORK_LOGS_DIR);
         if (dir.exists() && dir.isDirectory()) {
             File[] matchingFiles = dir.listFiles((d, name) -> name.startsWith("work_log_" + today));
-            /*
-            System.out.println("Matching files length: " + matchingFiles.length); // Debug statement
-            */
             if (matchingFiles != null && matchingFiles.length > 0) {
+                Arrays.sort(matchingFiles, (f1, f2) -> Long.compare(f1.lastModified(), f2.lastModified()));
                 int response = JOptionPane.showConfirmDialog(null,
                         "A log file for today exists. Do you want to continue the previous session?",
                         "Continue Previous Session",
@@ -61,8 +60,6 @@ public class WorkTracker {
                     importPreviousSession(matchingFiles[0]);
                 }
             }
-        } else {
-            System.out.println("Directory does not exist or is not a directory: " + WORK_LOGS_DIR); // Debug statement
         }
     }
 
