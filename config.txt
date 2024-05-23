@@ -1,0 +1,4 @@
+categories=toil,automation,meetings,learning,other
+outputFile=work_log.csv
+displayMinutes=true
+autoSaveOnExit=true
