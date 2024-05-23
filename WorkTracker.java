@@ -20,6 +20,7 @@ public class WorkTracker {
     private static boolean displayMinutes;
     private static boolean autoSaveOnExit;
     private static LocalDateTime sessionStart;
+    private static File currentSessionFile;
     private static final String WORK_LOGS_DIR = "work_logs";
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
@@ -64,6 +65,7 @@ public class WorkTracker {
     }
 
     private static void importPreviousSession(File file) {
+        currentSessionFile = file;
         try (Scanner scanner = new Scanner(file)) {
             scanner.nextLine(); // Skip header
             while (scanner.hasNextLine()) {
@@ -157,12 +159,15 @@ public class WorkTracker {
         try {
             Files.createDirectories(Paths.get(WORK_LOGS_DIR));
 
-            LocalDateTime now = LocalDateTime.now();
-            long sessionMinutes = ChronoUnit.MINUTES.between(sessionStart, now);
-            String timestamp = now.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-            String filename = String.format("work_log_%s_%dmin.csv", timestamp, sessionMinutes);
+            if (currentSessionFile == null) {
+                LocalDateTime now = LocalDateTime.now();
+                long sessionMinutes = ChronoUnit.MINUTES.between(sessionStart, now);
+                String timestamp = now.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+                String filename = String.format("work_log_%s_%dmin.csv", timestamp, sessionMinutes);
+                currentSessionFile = new File(WORK_LOGS_DIR, filename);
+            }
 
-            try (PrintWriter writer = new PrintWriter(new FileWriter(WORK_LOGS_DIR + "/" + filename))) {
+            try (PrintWriter writer = new PrintWriter(new FileWriter(currentSessionFile))) {
                 writer.println("Category,TimeSpent(Minutes)");
                 for (String category : categories) {
                     writer.println(category + "," + timeSpent.getOrDefault(category, 0L));
